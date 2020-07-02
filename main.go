@@ -29,7 +29,7 @@ var movies []Movie
 
 //Connect DB
 func connect() *sql.DB {
-	db, err := sql.Open("mysql", "u4560401_simple:Aa3einga101!!@tcp(tempatneduh.com:3306)/u4560401_simple")
+	db, err := sql.Open("mysql", "(username):(password)@tcp((db_host):3306)/u4560401_simple")
 
 	if err != nil {
 		log.Fatal(err)
