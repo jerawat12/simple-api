@@ -29,7 +29,7 @@ var movies []Movie
 
 //Connect DB
 func connect() *sql.DB {
-	db, err := sql.Open("mysql", "(username):(password)@tcp((db_host):3306)/u4560401_simple")
+	db, err := sql.Open("mysql", "<username>:<password>@tcp(xxxxx.com:3306)/u4560401_simple")
 
 	if err != nil {
 		log.Fatal(err)
@@ -75,6 +75,31 @@ func getMovie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(movie)
 
+}
+
+//Create SINGLE Movie
+func createMovie(w http.ResponseWriter, r *http.Request) {
+	var response Response
+	db := connect()
+	defer db.Close()
+	err := r.ParseMultipartForm(4096)
+	if err != nil {
+		panic(err)
+	}
+	name := r.FormValue("name")
+	imdbRating := r.FormValue("imdbrating")
+	releaseDate := r.FormValue("releasedate")
+
+	_, err = db.Exec("INSERT INTO movie (name, imdb_rating, release_date) values (?,?,?)", name, imdbRating, releaseDate)
+	if err != nil {
+		log.Print(err)
+	}
+	response.Status = 1
+	response.Message = "Created"
+	log.Print("Single Movie Created")
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 //Update SINGLE Movie
@@ -144,6 +169,7 @@ func main() {
 	//API endpoints
 	router.HandleFunc("/v1/movie", getMovies).Methods("GET")
 	router.HandleFunc("/v1/movie/{id}", getMovie).Methods("GET")
+	router.HandleFunc("/v1/movie", createMovie).Methods("POST")
 	router.HandleFunc("/v1/movie/{id}", updateMovie).Methods("PUT")
 	router.HandleFunc("/v1/movie/{id}", deleteMovie).Methods("DELETE")
 	fmt.Println("Running on port 8081")
